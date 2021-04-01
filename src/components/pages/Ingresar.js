@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, InputNumber, Divider } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import Title from "antd/lib/typography/Title";
 import Text from "antd/lib/typography/Text";
-import { useHistory } from "react-router";
+import { Redirect, useHistory } from "react-router";
 import { useHideMenu } from "../../hooks/useHideMenu";
+import { getUsuarioStorage } from "../../helper/getUsuarioStorage";
 
 const layout = {
   labelCol: {
@@ -22,27 +23,31 @@ const tailLayout = {
 };
 
 export const Ingresar = () => {
-
   useHideMenu(false);
 
-
+  const [usuario] = useState(getUsuarioStorage());
   const history = useHistory();
 
-  const onFinish = (values) => {
-    console.log("Success:", values);
+  const onFinish = ({ nombre, escritorio }) => {
+    localStorage.setItem("agente", nombre);
+    localStorage.setItem("escritorio", escritorio);
 
-    history.push('/escritorio')
+    history.push("/escritorio");
   };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
+  if (usuario.agente && usuario.escritorio) {
+    return <Redirect to="/escritorio" />;
+  }
+
   return (
     <>
-    <Title level={2}>Ingresar</Title>
-    <Text>Su nombre y número de escritorio</Text>
-    <Divider></Divider>
+      <Title level={2}>Ingresar</Title>
+      <Text>Su nombre y número de escritorio</Text>
+      <Divider></Divider>
       <Form
         {...layout}
         name="basic"
@@ -79,7 +84,7 @@ export const Ingresar = () => {
           <InputNumber min={1} max={100} />
         </Form.Item>
 
-        <Form.Item {...tailLayout}   >
+        <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit" shape="round">
             <SaveOutlined />
             Ingresar
